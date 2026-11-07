@@ -7550,7 +7550,7 @@ function patternToRegExp(pattern) {
 function parseOwner(raw) {
   const team = raw.match(/^@([A-Za-z0-9-]+)\/([A-Za-z0-9._-]+)$/);
   if (team) return { kind: "team", raw, org: team[1], slug: team[2].toLowerCase() };
-  const user = raw.match(/^@([A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\[bot\])?)$/);
+  const user = raw.match(/^@([A-Za-z0-9][A-Za-z0-9-]*(?:\[bot\])?)$/);
   if (user) return { kind: "user", raw, login: user[1] };
   if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(raw)) return { kind: "email", raw, email: raw };
   return void 0;
@@ -7854,7 +7854,7 @@ var brand_default = {
     homepageUrl: "https://github.com/mainfast/mainfast",
     docsUrl: "https://github.com/mainfast/mainfast#readme",
     issuesUrl: "https://github.com/mainfast/mainfast/issues",
-    pricingUrl: "https://github.com/mainfast/mainfast#free-and-pro",
+    pricingUrl: "https://mainfast.dev/pricing",
     npmScope: "@mainfast",
     configFile: ".mainfast.yml",
     configFileAlt: ".mainfast.yaml",
@@ -7865,17 +7865,16 @@ var brand_default = {
       freeActiveContributors: 5,
       windowDays: 30,
       proPricePerContributorMonth: "$4",
-      _benefitIds: "Polar licence-key benefit id of each plan (sandbox until launch): a key whose benefit_id is `pro` is Mainfast Pro; `free` is the optional free key (registered user, not Pro). tools/dev-sites/polar.mjs --apply prints the sandbox ids.",
+      _benefitIds: "Polar licence-key benefit id of each plan: a key whose benefit_id is `pro` is Mainfast Pro; `free` is the optional free key (registered user, not Pro).",
       benefitIds: {
-        free: "77fcbd42-f163-444e-9931-c98610f8063f",
-        pro: "9f2bb2ac-6b53-4c17-9cae-a2e2eccfad32"
+        free: "656e762a-ec6e-4e94-b7fd-f7ff879061ca",
+        pro: "ea9b4fcb-3659-404e-bb62-9bec84fb119a"
       }
     },
     polar: {
-      _comment: "Licence keys are checked with Polar's public customer-portal endpoint POST {api}/v1/customer-portal/license-keys/validate {key, organization_id}: no merchant secret. Until launch `api`, organizationId and the benefit ids are the Polar SANDBOX ones (29 Oct 2026); at launch put production Polar and its ids here. While organizationId is all zeros no key is sent anywhere. apiEnv / orgEnv override both, e.g. the sandbox.",
-      api: "https://sandbox-api.polar.sh",
-      sandboxApi: "https://sandbox-api.polar.sh",
-      organizationId: "f450cee3-327c-452e-a949-2557a22a7692",
+      _comment: "Licence keys are checked with Polar's public customer-portal endpoint POST {api}/v1/customer-portal/license-keys/validate {key, organization_id}: no merchant secret. These are the live Polar values. While organizationId is all zeros no key is sent anywhere. apiEnv / orgEnv override both, e.g. the sandbox.",
+      api: "https://api.polar.sh",
+      organizationId: "3a0d763f-8fac-4df0-898a-a59eb60d3506",
       apiEnv: "MAINFAST_POLAR_API",
       orgEnv: "MAINFAST_POLAR_ORG",
       timeoutMs: 3e3
@@ -7892,11 +7891,7 @@ var brand_default = {
       checkName: "Mainfast Intact",
       commentMarker: "<!-- mainfast-intact:sticky -->",
       actionRef: "mainfast/intact@v0",
-      branding: { icon: "git-merge", color: "blue" },
-      plugin: {
-        name: "mainfast",
-        description: "Mainfast Intact: check merge commits for dropped main changes before you push."
-      }
+      branding: { icon: "git-merge", color: "blue" }
     },
     migrations: {
       productName: "Mainfast Migrations",
@@ -8133,7 +8128,7 @@ var COMMENT_MARKER = P.commentMarker;
 var USER_AGENT = `${P.cliName}/${VERSION}`;
 
 // src/config.ts
-var KNOWN_KEYS = ["dormantDays", "maxSearches", "ignore", "skipOwners", "requireOwners", "expandTeams", "failOn"];
+var KNOWN_KEYS = ["enabled", "dormantDays", "maxSearches", "ignore", "skipOwners", "requireOwners", "expandTeams", "failOn"];
 var DEFAULT_CONFIG = {
   dormantDays: 180,
   maxSearches: 100,
@@ -8618,6 +8613,9 @@ async function auditOwners(input) {
   report.ok = !findings.some((f) => f.severity === "error");
   return report;
 }
+
+// ../packages/shared/src/repo-file.ts
+var MAX_REPO_FILE_BYTES = 1024 * 1024;
 
 // src/load.ts
 async function codeownersAt(api, ref) {
